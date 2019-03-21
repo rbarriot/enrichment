@@ -93,4 +93,4 @@ for r in results:
 	elif r.pvalue > alpha: break
 	# OUTPUT
 	print "%s\t%s\t%s/%s\t%s\t%s" % ( r.id, r.pvalue, r.common, r.size, r.name, ', '.join(r.common_elements))
-	i=i+1
+	i+=1

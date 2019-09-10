@@ -1,17 +1,17 @@
 # enrichment
 Simple script to perform set enrichment analysis
 
-`ses.py` allows to perform a gene set enrichment analysis from the command line. It takes as input the gene set and will compare it to all the sets in a file containing predefined sets (usually a set corresponds to genes sharing an annotation, e.g. the genes annotated with the [Gene Ontology](http://geneontology.org) term GO:0006418 *tRNA aminoacylation for protein translation*	from the Biological Process branch).
+`blastset.py` allows to perform a gene set enrichment analysis from the command line. It takes as input the gene set and will compare it to all the sets in a file containing predefined sets (usually a set corresponds to genes sharing an annotation, *e.g.* the genes annotated with the [Gene Ontology](http://geneontology.org) term GO:0006418 *tRNA aminoacylation for protein translation*	from the Biological Process branch).
 
 ## set comparisons
 
-The **query set** is compared to each **target set** through a **binomial test**, thus each comparison yields a *p-value* which can be interpreted as the probability to obtain by chance at least the number of elements in common between the two compared sets (considered as two random samples from the same population).
+The **query set** is compared to each **target set** through a **binomial test** (or hypergeometric), thus each comparison yields a *p-value* which can be interpreted as the probability to obtain by chance at least the number of elements in common between the two compared sets (considered as two random samples from the same population).
 
 # Example
-The following command line will consider the set of identifiers {ALAS, ARGS, ASNS, ASPS, CYSS, GLTX, GLYQ, GLYS, HISS, ILES} and search for most *similar* sets in the file `data/EcolA.go.set`. The *p-values* are adjust by FDR because of the multiple testing performed and the theshold for *p-values* is set to 0.05.
+The following command line will consider the set of identifiers {ALAS, ARGS, ASNS, ASPS, CYSS, GLTX, GLYQ, GLYS, HISS, ILES} and search for most *similar* sets in the file `data/EcolA.go.set`. The *p-values* are adjusted by FDR because of the multiple testing performed and the theshold for *p-values* is set to 0.05.
 
 ```sh
-./ses.py --query 'ALAS ARGS ASNS ASPS CYSS GLTX GLYQ GLYS HISS ILES' --sets data/EcolA.go.sets --adjust --alpha 0.05
+./blastset.py --query 'ALAS ARGS ASNS ASPS CYSS GLTX GLYQ GLYS HISS ILES' --sets data/EcolA.go.sets --adjust --alpha 0.05
 ```
 
 The begining of the output produced is:

@@ -18,7 +18,7 @@ from os.path import isfile
 from scipy.stats import binom, hypergeom
 
 # SCRIPT PARAMETERS
-# e.g. ./ses.py --sets EcolA.biocyc.sets --query 'ALAS ARGS ASNS ASPS CYSS GLTX GLYQ GLYS HISS ILES'
+# e.g. ./blastset.py --sets EcolA.biocyc.sets --query 'ALAS ARGS ASNS ASPS CYSS GLTX GLYQ GLYS HISS ILES'
 parser = argparse.ArgumentParser(description='Search enriched terms/categories in the provided (gene) set')
 parser.add_argument('-q', '--query', required=True, help='Query set.')
 parser.add_argument('-t', '--sets', required=True, help='Target sets (categories).')

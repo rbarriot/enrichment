@@ -20,12 +20,12 @@ from scipy.stats import binom, hypergeom
 # SCRIPT PARAMETERS
 # e.g. ./ses.py --sets EcolA.biocyc.sets --query 'ALAS ARGS ASNS ASPS CYSS GLTX GLYQ GLYS HISS ILES'
 parser = argparse.ArgumentParser(description='Search enriched terms/categories in the provided (gene) set')
-parser.add_argument('--query', required=True, help='Query set.')
-parser.add_argument('--sets', required=True, help='Target sets (categories).')
-parser.add_argument('--alpha', required=False, default=0.05, help='Significance threshold.')
-parser.add_argument('--adjust', required=False, action="store_true", help='Adjust for multiple testing (FDR).')
-parser.add_argument('--measure', required=False, default='binomial', help='Dissimilarity index (binomial, hypergeometric, chi2 or coverage). ch2 and coverage are NOT YET IMPLEMENTED')
-parser.add_argument('--limit', required=False, type=int, default=0, help='Maximum number of results to report.)
+parser.add_argument('-q', '--query', required=True, help='Query set.')
+parser.add_argument('-t', '--sets', required=True, help='Target sets (categories).')
+parser.add_argument('-a', '--alpha', required=False, type=float, default=0.05, help='Significance threshold.')
+parser.add_argument('-c', '--adjust', required=False, action="store_true", help='Adjust for multiple testing (FDR).')
+parser.add_argument('-m', '--measure', required=False, default='binomial', help='Dissimilarity index: binomial (default), hypergeometric, chi2 or coverage. chi2 and coverage are NOT YET IMPLEMENTED')
+parser.add_argument('-l', '--limit', required=False, type=int, default=0, help='Maximum number of results to report.')
 param = parser.parse_args()
 
 class ComparedSet(object):
@@ -90,14 +90,13 @@ for id in sets:
 # PRINT SIGNIFICANT RESULTS
 results.sort(key=lambda an_item: an_item.pvalue)
 i=1
-alpha = float(param.alpha)
 for r in results:
 	# FDR
-	if param.adjust and r.pvalue > alpha * i / len(results): break
+	if param.adjust and r.pvalue > param.alpha * i / len(results): break
 	# limited output
 	if param.limit > 0 and i>param.limit: break
 	# alpha threshold
-	elif r.pvalue > alpha: break
+	elif r.pvalue > param.alpha: break
 	# OUTPUT
 	print("%s\t%s\t%s/%s\t%s\t%s" % ( r.id, r.pvalue, r.common, r.size, r.name, ', '.join(r.common_elements)))
 	i+=1

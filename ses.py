@@ -15,7 +15,7 @@
 
 import argparse
 from os.path import isfile
-from scipy.stats import binom
+from scipy.stats import binom, hypergeom
 
 # SCRIPT PARAMETERS
 # e.g. ./ses.py --sets EcolA.biocyc.sets --query 'ALAS ARGS ASNS ASPS CYSS GLTX GLYQ GLYS HISS ILES'
@@ -24,6 +24,8 @@ parser.add_argument('--query', required=True, help='Query set.')
 parser.add_argument('--sets', required=True, help='Target sets (categories).')
 parser.add_argument('--alpha', required=False, default=0.05, help='Significance threshold.')
 parser.add_argument('--adjust', required=False, action="store_true", help='Adjust for multiple testing (FDR).')
+parser.add_argument('--measure', required=False, default='binomial', help='Dissimilarity index (binomial, hypergeometric, chi2 or coverage). ch2 and coverage are NOT YET IMPLEMENTED')
+parser.add_argument('--limit', required=False, type=int, default=0, help='Maximum number of results to report.)
 param = parser.parse_args()
 
 class ComparedSet(object):
@@ -73,12 +75,15 @@ query_size = len(query)
 for id in sets:
 	elements = sets[ id ][ 'elements' ]
 	common_elements = elements.intersection( query )
-	# p_success = 384/2064, 152 attempts, 61 success
-	#~ pval = binom.pmf(61, 152, 384.0/2064)
-	#~ for k in xrange(62,153): pval += binom.pmf(k, 152, 384.0/2064)
-	#~ print "sum binom.pmf(61..152,152, 384/2064) = %s" % ( pval )
-	#~ print "cdf binom.cdf(>=61,152, 384/2064) = "+str( binom.cdf(152-61,152, 1- (384.0/2064)) )
-	pval = binom.cdf( query_size - len(common_elements), query_size, 1 - float(len(elements))/population_size)
+	if param.measure=='binomial': # binom.cdf(>=success, attempts, proba)
+		# p_success = 384/2064, 152 attempts, 61 success
+		#~ pval = binom.pmf(61, 152, 384.0/2064)
+		pval = binom.cdf( query_size - len(common_elements), query_size, 1 - float(len(elements))/population_size)
+	elif param.measure=='hypergeometric': # hypergeom.sf(common-1, population, target, query) = 1-p( X <= x-1 ) = p( X >= x )
+		pval = hypergeom.sf(len(common_elements)-1, population_size, len(elements), query_size)
+	else:
+		print('sorry, %s not (yet) implemented' % ( param.measure ))
+		exit(1)
 	r = ComparedSet( id, sets[id]['name'], len(common_elements), len(elements), pval, elements, common_elements)
 	results.append( r )
 
@@ -89,6 +94,8 @@ alpha = float(param.alpha)
 for r in results:
 	# FDR
 	if param.adjust and r.pvalue > alpha * i / len(results): break
+	# limited output
+	if param.limit > 0 and i>param.limit: break
 	# alpha threshold
 	elif r.pvalue > alpha: break
 	# OUTPUT
